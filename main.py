@@ -16,12 +16,15 @@ import requests
 import brightness
 from wifi import wifi
 import volume
+import ctypes
+import winshell
+
 
 
 print('Loading your AI personal assistant')
 
-engine=pyttsx3.init('sapi5')
-voices=engine.getProperty('voices')
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voices')
 engine.setProperty('voice','voices[0].id')
 
 
@@ -168,15 +171,7 @@ if __name__ == '__main__':
             webbrowser.open_new_tab(statement)
             time.sleep(5)
 
-        elif 'ask' in statement:
-            speak('I can answer to computational and geographical questions and what question do you want to ask now')
-            question = take_command()
-            app_id = "R2K75H-7ELALHR35X"
-            client = wolframalpha.Client('R2K75H-7ELALHR35X')
-            res = client.query(question)
-            answer = next(res.results).text
-            speak(answer)
-            print(answer)
+
 
         elif 'play' in statement:
             song = statement.replace('play', '')
@@ -224,7 +219,57 @@ if __name__ == '__main__':
         elif "log off" in statement or "sign out" in statement:
             speak("Ok , your pc will log off in 10 sec make sure you exit from all applications")
             subprocess.call(["shutdown", "/l"])
+        elif "git clone" in statement:
+            speak("please provide repo url")
+            repo = take_command()
+            speak("please provide destination path")
+            destination = take_command()
+            subprocess.call(f'git clone {repo}', shell=True)
 
+        if "make a note" in statement or "write this down" in statement or "remember this" in statement:
+            speak("What should i write, sir")
+            note = take_command()
+            file = open('jarvis.txt', 'w')
+            speak("Sir, Should i include date and time")
+            snfm = take_command()
+            if 'yes' in snfm or 'sure' in snfm:
+                strTime = datetime.datetime.now().strftime("% H:% M:% S")
+                file.write(strTime)
+                file.write(" :- ")
+                file.write(note)
+            else:
+                file.write(note)
 
+        elif "show note" in statement:
+            speak("Showing Notes")
+            file = open("jarvis.txt", "r")
+            print(file.read())
+            speak(file.read(6))
+
+        elif 'lock window' in statement:
+            speak("locking the device")
+            ctypes.windll.user32.LockWorkStation()
+
+        elif 'shutdown system' in statement:
+            speak("Hold On a Sec ! Your system is on its way to shut down")
+            subprocess.call('shutdown / p /f')
+
+        elif 'empty recycle bin' in statement:
+            winshell.recycle_bin().empty(confirm=True, show_progress=False, sound=True)
+            speak("Recycle Bin Recycled")
+        elif 'open notepad' in statement:
+            os.startfile(r'C:\WINDOWS\system32\notepad.exe')
+        elif 'open vscode' in statement or 'open visual studio code' in statement:
+            os.startfile(r'C:\Users\Vignesh Kumar\AppData\Local\Programs\Microsoft VS Code\Code.exe')
+        elif 'open pycharm' in statement:
+            os.startfile(r'C:\Program Files\JetBrains\PyCharm Community Edition 2020.3.3\bin\pycharm64.exe')
+        elif 'open control panel' in statement:
+            os.startfile(r'%windir%\system32\control.exe')
+        elif 'screen record' in statement:
+            pyautogui.keyDown("win")
+            pyautogui.keyDown("alt")
+            pyautogui.press("r")
+            pyautogui.keyUp("win")
+            pyautogui.keyUp("alt")
 
 time.sleep(3)
